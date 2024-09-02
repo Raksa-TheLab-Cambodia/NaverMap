@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<!-- 합쳐지고 최소화된 최신 CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<!-- 부가적인 테마 -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+	<!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+	<!-- 지도api -->
+	<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=83bfuniegk&submodules=geocoder"></script>	
+	
+	<script type="text/javascript">
+		$(function(){
+
+			var class_cnt = $('#class_cnt')
+						
+			class_cnt.on('click',function(){
+				var class_cnt_val = class_cnt.val();
+				var price = $("#price").html();
+				var pay_price = class_cnt_val * price
+				if(class_cnt_val != null && class_cnt_val != "") {
+					$("#basket_view").fadeIn(300);
+					$("#basket_view").html("");
+					$("#basket_view").append('<h4 class="text-right"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> '
+						+class_cnt_val
+						+'명</h3>'
+						+'<h2 class="text-right">금액 : '+pay_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'원</h1>'
+						);
+				}
+			})
+		});
+	</script>
+
+
+	<style type="text/css">
+		#basket_view {
+			display:none;
+		}
+		.comment_wrap {
+			border-radius: 10px;
+			background: #F6F6F6;
+			border: 1px solid #EAEAEA; 
+			padding: 30px 50px;
+
+		}
+
+		.comment_item {
+			padding: 20px 0;
+			border-bottom: 1px solid #EAEAEA;
+		}
+
+		.comment_item > span {
+			display:block;
+		}
+
+		.comment_write_box {
+			padding-top: 30px;
+		}
+
+		.comment_user {
+			line-height: 3em;
+		}
+
+		.comment_del {
+			padding-left: 10px
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-md-5">
+			<img src="http://placehold.it/300x300" style="display:block; width:100%; height:100%" />
+		</div>
+		<div class="col-md-6">
+			<ul>
+				<li><h1>Title</h1></li>
+				<li><span class="col-md-3" >sub title</span><span>내용</span></li>
+				<li><span class="col-md-3" >정원</span><span>10명</span></li>
+				<li><span class="col-md-3" >신청인원</span><span><input id="class_cnt" type="number" min="1" max="10"></span></li>
+				<li><span class="col-md-3" >금액</span><span id="price">100000</span></li>
+			</ul>
+
+			<div id="basket_view" class="row">
+
+			</div>
+			<button type="button" class="btn btn-danger btn-lg">Large button</button>
+			<!--모집완료후버튼...-->
+			<button type="button" class="btn btn-default btn-lg" disabled="disabled">참여하기</button>
+
+		</div>
+	</div>
+	<div class="row">
+		<h1>내용</h1>
+		<p>
+			What is Lorem Ipsum?
+			Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+		</p>
+
+	</div>
+	<div class="row">
+
+    <div id="map" style="width:100%;height:400px;"></div>
+    <script>
+      var map = new naver.maps.Map('map');
+      var myaddress = '불정로 6';// 도로명 주소나 지번 주소만 ㄴ가능 (건물명 불가!!!!)
+      naver.maps.Service.geocode({address: myaddress}, function(status, response) {
+          if (status !== naver.maps.Service.Status.OK) {
+              return alert(myaddress + '의 검색 결과가 없거나 기타 네트워크 에러');
+          }
+          var result = response.result;
+          // 검색 결과 갯수: result.total
+          // 첫번째 결과 결과 주소: result.items[0].address
+          // 첫번째 검색 결과 좌표: result.items[0].point.y, result.items[0].point.x
+          var myaddr = new naver.maps.Point(result.items[0].point.x, result.items[0].point.y);
+          map.setCenter(myaddr); // 검색된 좌표로 지도 이동
+          // 마커 표시
+          var marker = new naver.maps.Marker({
+            position: myaddr,
+            map: map
+          });
+          // 마커 클릭 이벤트 처리
+          naver.maps.Event.addListener(marker, "click", function(e) {
+            if (infowindow.getMap()) {
+                infowindow.close();
+            } else {
+                infowindow.open(map, marker);
+            }
+          });
+          // 마크 클릭시 인포윈도우 오픈
+          var infowindow = new naver.maps.InfoWindow({
+              content: '<h4> [네이버 개발자센터]</h4><a href="https://developers.naver.com" target="_blank"><img src="https://developers.naver.com/inc/devcenter/images/nd_img.png"></a>'
+          });
+      });
+      </script>		
+	</div>
+	<div class="row comment_wrap">
+		<h1>댓글</h1>
+		<div class="row comment_box">
+			<div class="row comment_item">
+				
+				<span class="comment_user"><span class="glyphicon glyphicon-education" aria-hidden="true"></span> 아이디</span>
+				<p>
+					Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap
+				</p>
+				<a href="#" class="pull-right comment_del"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span></a>
+				<span class="comment_date pull-right">2018.01.01</span>				
+			</div>
+		</div>
+		<div class="row comment_write_box">
+			<textarea></textarea>
+			<button type="button" class="btn btn-default">Large button</button>			
+		</div>		
+
+
+	</div>
+</div>
+</body>
+</html>
