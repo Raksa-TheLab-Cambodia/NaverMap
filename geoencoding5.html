@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naver Map Geocode Example</title>
+    <!-- Include Naver Maps JavaScript API -->
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=83bfuniegk&submodules=geocoder"></script>
+    <style>
+        #map { width: 100%; height: 400px; }
+        .controls { margin-top: 10px; }
+        .controls input { width: 300px; }
+        .controls button { margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="controls">
+        <input type="text" id="address" placeholder="Enter address" onfocus="this.select();">
+        <button onclick="geocodeAddress()">Geocode</button>
+        <button onclick="resetMap()">Reset</button>
+        <button onclick="confirmLocation()">Confirm Location</button>
+    </div>
+
+    <script>
+        // Initialize Naver Map
+        var map = new naver.maps.Map('map', {
+            center: new naver.maps.LatLng(37.5665, 126.9780), // Default center: Seoul, South Korea
+            zoom: 12 // Default zoom level
+        });
+
+        var marker = null;
+        var infoWindow = null;
+        var lastCoord = null;
+
+        /**
+         * Function to geocode the address and update the map.
+         */
+        function geocodeAddress() {
+            var address = document.getElementById('address').value.trim();
+
+            if (!address) {
+                alert('Please enter an address!');
+                resetMap();
+                return;
+            }
+
+            naver.maps.Service.geocode({ query: address }, function(status, response) {
+                if (status !== naver.maps.Service.Status.OK || !response.v2.addresses || response.v2.addresses.length === 0) {
+                    alert('No matching location found. Please enter a valid address!');
+                    resetMap();
+                    return;
+                }
+
+                var result = response.v2.addresses[0];
+                var coord = new naver.maps.LatLng(result.y, result.x);
+                lastCoord = coord; // Store the last valid coordinate
+
+                updateMap(coord, result.roadAddress);
+            });
+        }
+
+        /**
+         * Function to update the map with a new marker and info window.
+         * @param {naver.maps.LatLng} coord - The coordinates to center the map on.
+         * @param {string} address - The address to display in the info window.
+         */
+        function updateMap(coord, address) {
+            clearMap();
+
+            map.setCenter(coord);
+            map.setZoom(15); // Set zoom level for a closer view
+
+            marker = new naver.maps.Marker({
+                position: coord,
+                map: map
+            });
+
+            infoWindow = new naver.maps.InfoWindow({
+                content: `<div style="padding:10px;">${address}</div>`
+            });
+
+            infoWindow.open(map, marker);
+        }
+
+        /**
+         * Function to clear the map, marker, and info window.
+         */
+        function clearMap() {
+            if (marker) {
+                marker.setMap(null);
+                marker = null;
+            }
+            if (infoWindow) {
+                infoWindow.close();
+                infoWindow = null;
+            }
+        }
+
+        /**
+         * Function to reset the map to its initial state.
+         */
+        function resetMap() {
+            clearMap();
+            document.getElementById('address').value = '';
+            map.setCenter(new naver.maps.LatLng(37.5665, 126.9780));
+            map.setZoom(12); // Reset to default zoom 
+            lastCoord = null;
+        }
+
+        /**
+         * Function to confirm and display the last valid location.
+         */
+        function confirmLocation() {
+            if (lastCoord) {
+                alert(`Confirmed location at: Latitude ${lastCoord.lat()}, Longitude ${lastCoord.lng()}`);
+            } else {
+                alert('No location has been geocoded yet.');
+            }
+        }
+    </script>
+</body>
+</html>

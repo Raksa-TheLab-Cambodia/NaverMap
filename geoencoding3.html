@@ -9,8 +9,11 @@
 </head>
 <body>
     <div id="map" style="width: 100%; height: 400px;"></div>
-    <input type="text" id="address" placeholder="Enter address">
-    <button onclick="geocodeAddress()">Geocode</button>
+    <div style="margin-top: 10px;">
+        <input type="text" id="address" placeholder="Enter address" style="width: 200px;">
+        <button onclick="geocodeAddress()">Geocode</button>
+        <button onclick="clearMap()">Clear</button>
+    </div>
 
     <script>
         // Initialize Naver Map
@@ -28,8 +31,7 @@
             // Check if address input is empty
             if (!address) {
                 alert('Please enter a location!');
-                removeMarker();
-                closeInfoWindow();
+                clearMap();
                 return;
             }
 
@@ -45,12 +47,14 @@
                 var result = response.v2.addresses[0]; // Assuming the first result is the most relevant
                 var coord = new naver.maps.LatLng(result.y, result.x);
 
+                // Remove the previous marker and info window if they exist
+                clearMap();
+
                 // Set the map's center to the geocoded coordinates
                 map.setCenter(coord);
 
-                // Remove the previous marker and info window if they exist
-                removeMarker();
-                closeInfoWindow();
+                // Zoom in to the geocoded location
+                map.setZoom(15); // Adjust zoom level as needed
 
                 // Add a new marker at the geocoded coordinates
                 marker = new naver.maps.Marker({
@@ -68,20 +72,19 @@
             });
         }
 
-        // Function to remove the current marker from the map
-        function removeMarker() {
+        // Function to clear the map, marker, and info window
+        function clearMap() {
             if (marker) {
                 marker.setMap(null);
                 marker = null;
             }
-        }
-
-        // Function to close the current info window
-        function closeInfoWindow() {
             if (infoWindow) {
                 infoWindow.close();
                 infoWindow = null;
             }
+            document.getElementById('address').value = ''; // Clear the input field
+            map.setCenter(new naver.maps.LatLng(37.5665, 126.9780)); // Reset the map center to the default location
+            map.setZoom(10); // Reset zoom level
         }
     </script>
 </body>
